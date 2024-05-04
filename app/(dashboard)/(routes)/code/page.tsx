@@ -1,7 +1,7 @@
 "use client";
 import * as z from "zod"
 import { useRouter } from "next/navigation";
-import { MessageSquare } from 'lucide-react';
+import { CodeIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,7 @@ import { BotAvatar } from "@/components/BotAvatar";
 // }
 
 
-const Conversation = () => {
+const Code = () => {
     const router = useRouter();
     const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -46,7 +46,7 @@ const Conversation = () => {
                 content: values.prompt,
             }
             const newMessages = [...messages, userMessage];
-            const response = await axios.post("/api/conversation", {
+            const response = await axios.post("/api/code", {
                 messages: newMessages,
             })
 
@@ -66,11 +66,11 @@ const Conversation = () => {
     return (
         <div>
             <Heading
-                title='Conversation'
-                description='Our AI based conversation model.'
-                icon={MessageSquare}
-                iconColor='text-violet-500'
-                bgColor='bg-violet-500/10'
+                title='Code Generation'
+                description='Generate Code using prompts.'
+                icon={CodeIcon}
+                iconColor='text-green-700'
+                bgColor='bg-green-700/10'
             />
             <div className='px-4 lg:px-8'>
                 <div>
@@ -96,7 +96,7 @@ const Conversation = () => {
                                         <FormControl className="m-0 p-0">
                                             <Input className="border-0  outline-none focus-visible:ring-0  focus-visible:ring-transparent"
                                                 disabled={isLoading}
-                                                placeholder="How can I help you today?"
+                                                placeholder="Any codding problem?"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -140,4 +140,4 @@ const Conversation = () => {
     )
 }
 
-export default Conversation;
+export default Code;
