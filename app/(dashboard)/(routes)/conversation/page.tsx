@@ -29,7 +29,7 @@ import { BotAvatar } from "@/components/BotAvatar";
 
 const Conversation = () => {
     const router = useRouter();
-    const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
+    const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -45,12 +45,13 @@ const Conversation = () => {
                 role: "user",
                 content: values.prompt,
             }
-            const newMessages = [...messages, userMessage];
+            // const newMessages = [...messages, userMessage];
             const response = await axios.post("/api/conversation", {
-                messages: newMessages,
+                message: userMessage,
             })
 
-            setMessages((current) => [...current, userMessage, response.data]);
+            setMessages(response.data)
+            // setMessages((current) => [...current, userMessage, response.data]);
 
             form.reset();
 
@@ -114,11 +115,14 @@ const Conversation = () => {
                             <Loader />
                         </div>
                     )}
-                    {messages.length === 0 && !isLoading && (
+                    {/* {messages.length === 0 && !isLoading && (
                         <Empty label="Conversation not started" />
-                    )}
+                    )} */}
                     <div className="flex flex-col-reverse gap-y-4">
-                        {
+                        {messages && <p>{String(messages?.content)}</p>
+
+                        }
+                        {/* {
                             messages.map((message) => (
                                 <div
                                     key={String(message.content)}
@@ -132,7 +136,7 @@ const Conversation = () => {
                                     </p>
                                 </div>
                             ))
-                        }
+                        } */}
                     </div>
                 </div>
             </div>

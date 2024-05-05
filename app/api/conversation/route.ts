@@ -14,12 +14,12 @@ export async function POST(req: Request) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    let { messages } = body;
-    messages = JSON.stringify(messages);
-    let jsonArray = JSON.parse(messages);
+    let { message } = body;
+    message = JSON.stringify(message);
+    message = JSON.parse(message);
 
     // Extract the "content" value from the first element of the array
-    let contentValue = jsonArray[jsonArray.length - 1].content;
+    // let contentValue = jsonArray[jsonArray.length - 1].content;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       });
     }
 
-    if (!messages) {
+    if (!message) {
       return new NextResponse("Messages are Required", { status: 400 });
     }
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
     const response = await hf.textGeneration({
       model: "tiiuae/falcon-7b-instruct",
-      inputs: contentValue,
+      inputs: message.content,
     });
 
     // return NextResponse.json(response.choices[0].message);
