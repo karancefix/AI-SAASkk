@@ -1,8 +1,8 @@
 "use client";
 import * as z from "zod"
 import { useRouter } from "next/navigation";
-import { MessageSquare } from 'lucide-react';
-import React, { useState } from 'react'
+import { DeleteIcon, MessageSquare, Trash } from 'lucide-react';
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -16,19 +16,28 @@ import { Empty } from "@/components/Empty";
 
 import { formSchema } from "./constants";
 import { Loader } from "@/components/Loader";
-import { cn } from "@/lib/utils";
 import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
+import Delete from "@/components/Delete";
 
-// interface ChatCompletionRequestMessage {
-//     role: 'user' | 'assistant' | 'system';
-//     content: string;
-//     name?: string;
-// }
 
 
 const Conversation = () => {
     const router = useRouter();
+    const [activities, setActivities] = useState<any>(null)
+    useEffect(() => {
+        axios.get("/api/activity/conversation")
+            .then((response) => {
+                setActivities(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+
+    }, [])
+
+
+
     const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -45,13 +54,11 @@ const Conversation = () => {
                 role: "user",
                 content: values.prompt,
             }
-            // const newMessages = [...messages, userMessage];
             const response = await axios.post("/api/conversation", {
                 message: userMessage,
             })
 
             setMessages(response.data)
-            // setMessages((current) => [...current, userMessage, response.data]);
 
             form.reset();
 
@@ -65,7 +72,7 @@ const Conversation = () => {
     }
 
     return (
-        <div>
+        <div >
             <Heading
                 title='Conversation'
                 description='Our AI based conversation model.'
@@ -115,29 +122,54 @@ const Conversation = () => {
                             <Loader />
                         </div>
                     )}
-                    {/* {messages.length === 0 && !isLoading && (
+                    {activities?.length === 0 && !isLoading && (
                         <Empty label="Conversation not started" />
-                    )} */}
+                    )}
                     <div className="flex flex-col-reverse gap-y-4">
-                        {messages && <p>{String(messages?.content)}</p>
 
-                        }
-                        {/* {
-                            messages.map((message) => (
-                                <div
-                                    key={String(message.content)}
-                                    className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg",
-                                        message.role === "user" ? " bg-white border border-black/10" : "bg-muted "
-                                    )}
-                                >
-                                    {message.role == "user" ? <Useravatar /> : <BotAvatar />}
-                                    <p className="text-sm">
-                                        {String(message.content)}
-                                    </p>
+                        {activities &&
+                            activities.map((activity: any) => (
+                                <div>
+                                    <div className="flex justify-end me-4 text-sm  text-black/50 mb-2">
+                                        {new Date(activity.date).toLocaleString()}
+                                    </div>
+                                    <div
+                                        key={String(activity.aiContent)}
+                                        className="p-8 w-full flex items-start gap-x-8 rounded-lg bg-muted mb-3"
+
+                                    >
+                                        <BotAvatar />
+                                        <p className="text-sm">
+                                            {String(activity.aiContent)}
+                                        </p>
+
+                                    </div>
+
+                                    <div
+                                        key={String(activity.userContent)}
+                                        className="p-8 w-full flex justify-start items-center gap-x-8 rounded-lg bg-white border border-black/10 relative" // Added 'relative' class for positioning
+                                    >
+                                        <Useravatar />
+                                        <p className="text-sm flex-grow-1"> {/* Added 'flex-grow-1' class to make the paragraph take remaining space */}
+                                            {String(activity.userContent)}
+                                        </p>
+
+                                        <Delete id={activity._id} />
+
+                                    </div>
+
+
+
+
                                 </div>
+
+
                             ))
-                        } */}
+                        }
+
                     </div>
+
+
                 </div>
             </div>
         </div>
