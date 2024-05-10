@@ -104,7 +104,7 @@ const Conversation = () => {
                                         <FormControl className="m-0 p-0">
                                             <Input className="border-0  outline-none focus-visible:ring-0  focus-visible:ring-transparent"
                                                 disabled={isLoading}
-                                                placeholder="How can I help you today?"
+                                                placeholder="How can I help you today-(use ? at the end for better results) "
                                                 {...field}
                                             />
                                         </FormControl>
