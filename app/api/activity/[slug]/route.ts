@@ -1,4 +1,5 @@
 import DynamicSchema from '@/app/model/model';
+import connectDB from '@/lib/dbConnection/db';
 import { auth } from '@clerk/nextjs/server';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
@@ -25,7 +26,7 @@ export async function GET(req: Request, context: { params: Params }) {
     if (!userId) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
-
+    await connectDB();
     // Get the UserModel using DynamicSchema or directly import your User model
     const UserModel = DynamicSchema(slug);
 
