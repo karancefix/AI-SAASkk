@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     const response = await hf.textGeneration({
       model: "tiiuae/falcon-7b-instruct",
-      inputs: message.content,
+      inputs: message.content + " ?",
     });
 
     await connectDB();
