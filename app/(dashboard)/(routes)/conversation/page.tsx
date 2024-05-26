@@ -151,7 +151,7 @@ const Conversation = () => {
 
                         {activities &&
                             activities.map((activity: any) => (
-                                <div>
+                                <div key={activity.date}>
                                     <div className="flex justify-end me-4 text-sm  text-black/50 mb-2">
                                         {new Date(activity.date).toLocaleString()}
                                     </div>

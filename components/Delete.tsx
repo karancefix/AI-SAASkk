@@ -30,7 +30,7 @@ const Delete = ({ id, toggleFetch }: DeleteProps) => {
 
     }
     return (
-        <div className="absolute right-10 top-10 hover:scale-90 hover:opacity-70 transition" onClick={handleClick}>
+        <div className="absolute right-3 top-10  hover:scale-90 hover:opacity-70 transition" onClick={handleClick}>
             <Trash />
         </div>
     )
