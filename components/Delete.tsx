@@ -6,9 +6,11 @@ import React from 'react'
 import { usePathname } from 'next/navigation'
 
 type DeleteProps = {
-    id: string
+    id: string,
+    toggleFetch: any
 }
-const Delete = ({ id }: DeleteProps) => {
+
+const Delete = ({ id, toggleFetch }: DeleteProps) => {
     const pathname = usePathname();
 
     const handleClick = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -19,6 +21,11 @@ const Delete = ({ id }: DeleteProps) => {
         }
         catch (error) {
             console.log(error)
+        }
+
+        finally {
+            toggleFetch();
+            console.log("finally")
         }
 
     }

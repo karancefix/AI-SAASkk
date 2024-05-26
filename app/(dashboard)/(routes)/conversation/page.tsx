@@ -67,9 +67,31 @@ const Conversation = () => {
             console.log(error)
         }
         finally {
-            router.refresh();
+            // router.refresh();
+            axios.get("/api/activity/conversation")
+                .then((response) => {
+                    setActivities(response.data)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+            // console.log("finally")
         }
     }
+
+
+    const handleFetch = () => {
+        axios.get("/api/activity/conversation")
+            .then((response) => {
+                setActivities(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+        console.log("handle fetch")
+    }
+
+
 
     return (
         <div >
@@ -154,7 +176,7 @@ const Conversation = () => {
                                             {String(activity.userContent)}
                                         </p>
 
-                                        <Delete id={activity._id} />
+                                        <Delete id={activity._id} toggleFetch={handleFetch} />
 
                                     </div>
 

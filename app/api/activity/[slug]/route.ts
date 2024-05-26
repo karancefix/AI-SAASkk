@@ -26,7 +26,9 @@ export async function GET(req: Request, context: { params: Params }) {
     if (!userId) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
     }
+
     await connectDB();
+
     // Get the UserModel using DynamicSchema or directly import your User model
     const UserModel = DynamicSchema(slug);
 
