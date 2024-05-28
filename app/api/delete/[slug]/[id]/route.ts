@@ -16,10 +16,10 @@ export async function DELETE(req: NextApiRequest, context: { params: Params }) {
             return NextResponse.json({ error: 'Id parameter is missing' }, { status: 400 });
         }
         const UserModel = DynamicSchema(slug);
-        const deletedConversation = await UserModel.findByIdAndDelete(id as string);
+        const deleted = await UserModel.findByIdAndDelete(id as string);
         return NextResponse.json({
             success: true,
-            deletedConversation
+            deleted
         })
     } catch (error) {
         console.log(error);

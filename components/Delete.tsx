@@ -17,7 +17,7 @@ const Delete = ({ id, toggleFetch }: DeleteProps) => {
         event.stopPropagation();
         try {
             const response = await axios.delete(`/api/delete${pathname}/${id}`)
-            console.log('Conversation deleted:', response.data);
+            console.log('Deleted:', response.data);
         }
         catch (error) {
             console.log(error)

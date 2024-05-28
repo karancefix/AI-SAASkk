@@ -33,7 +33,12 @@ export async function GET(req: Request, context: { params: Params }) {
     const UserModel = DynamicSchema(slug);
 
     // Fetch user activities using the userId
-    const userActivities = await UserModel.find({ uid: userId }).sort({ createdAt: -1 }).exec();
+    // const userActivities = await UserModel.find({ uid: userId }).sort({ createdAt: -1 }).exec();
+    const userActivities = await UserModel.find({ uid: userId })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .exec();
+
 
     // Send the user activities as JSON response
     return NextResponse.json(userActivities);

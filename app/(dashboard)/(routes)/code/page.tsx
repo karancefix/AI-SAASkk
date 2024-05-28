@@ -2,7 +2,7 @@
 import * as z from "zod"
 import { useRouter } from "next/navigation";
 import { CodeIcon } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -16,20 +16,30 @@ import { Empty } from "@/components/Empty";
 
 import { formSchema } from "./constants";
 import { Loader } from "@/components/Loader";
-import { cn } from "@/lib/utils";
 import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
+import Delete from "@/components/Delete";
 
-// interface ChatCompletionRequestMessage {
-//     role: 'user' | 'assistant' | 'system';
-//     content: string;
-//     name?: string;
-// }
+import ReactMarkdown from "react-markdown"
 
 
 const Code = () => {
     const router = useRouter();
-    const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
+    const [activities, setActivities] = useState<any>(null)
+    useEffect(() => {
+        axios.get("/api/activity/codes")
+            .then((response) => {
+                setActivities(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+
+    }, [])
+
+
+
+    const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -45,12 +55,11 @@ const Code = () => {
                 role: "user",
                 content: values.prompt,
             }
-            const newMessages = [...messages, userMessage];
             const response = await axios.post("/api/code", {
-                messages: newMessages,
+                message: userMessage,
             })
 
-            setMessages((current) => [...current, userMessage, response.data]);
+            setMessages(response.data)
 
             form.reset();
 
@@ -59,18 +68,40 @@ const Code = () => {
             console.log(error)
         }
         finally {
-            router.refresh();
+            // router.refresh();
+            axios.get("/api/activity/codes")
+                .then((response) => {
+                    setActivities(response.data)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+            // console.log("finally")
         }
     }
 
+
+    const handleFetch = () => {
+        axios.get("/api/activity/codes")
+            .then((response) => {
+                setActivities(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+        console.log("handle fetch")
+    }
+
+
+
     return (
-        <div>
+        <div >
             <Heading
                 title='Code Generation'
-                description='Generate Code using prompts.'
+                description='Generate code with descriptive text.'
                 icon={CodeIcon}
-                iconColor='text-green-700'
-                bgColor='bg-green-700/10'
+                iconColor="text-green-700"
+                bgColor="bg-green-700/10"
             />
             <div className='px-4 lg:px-8'>
                 <div>
@@ -96,7 +127,7 @@ const Code = () => {
                                         <FormControl className="m-0 p-0">
                                             <Input className="border-0  outline-none focus-visible:ring-0  focus-visible:ring-transparent"
                                                 disabled={isLoading}
-                                                placeholder="Any codding problem?"
+                                                placeholder="# Write a function to calculate the factorial of a number def factorial(n):"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -114,26 +145,71 @@ const Code = () => {
                             <Loader />
                         </div>
                     )}
-                    {messages.length === 0 && !isLoading && (
-                        <Empty label="Conversation not started" />
+                    {activities?.length === 0 && !isLoading && (
+                        <Empty label="Code Generation not started" />
                     )}
                     <div className="flex flex-col-reverse gap-y-4">
-                        {
-                            messages.map((message) => (
-                                <div
-                                    key={String(message.content)}
-                                    className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg",
-                                        message.role === "user" ? " bg-white border border-black/10" : "bg-muted "
-                                    )}
-                                >
-                                    {message.role == "user" ? <Useravatar /> : <BotAvatar />}
-                                    <p className="text-sm">
-                                        {String(message.content)}
-                                    </p>
+
+                        {activities &&
+                            activities.map((activity: any) => (
+                                <div key={activity.date}>
+                                    <div className="flex justify-end me-4 text-sm  text-black/50 mb-2">
+                                        {new Date(activity.date).toLocaleString()}
+                                    </div>
+                                    <div
+                                        key={String(activity.aiContent)}
+                                        className="p-8 w-full flex items-start gap-x-8 rounded-lg bg-muted mb-3"
+
+                                    >
+                                        <BotAvatar />
+                                        <ReactMarkdown
+                                            components={{
+                                                pre: ({ node, ...props }) => (
+                                                    <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                                                        <pre {...props} />
+
+                                                    </div>
+                                                ),
+                                                code: ({ node, ...props }) => (
+                                                    <code className="bg-black/10 rounded-lg p-1" {...props} />
+                                                )
+                                            }}
+                                            className="text-sm overflow-hidden leading-7"
+                                        >
+                                            {activity.aiContent || ""}
+                                        </ReactMarkdown>
+                                        {/* <p className="text-sm">
+                                            {String(activity.aiContent)}
+                                        </p> */}
+
+
+                                    </div>
+
+                                    <div
+                                        key={String(activity.userContent)}
+                                        className="p-8 w-full flex justify-start items-center gap-x-8 rounded-lg bg-white border border-black/10 relative" // Added 'relative' class for positioning
+                                    >
+                                        <Useravatar />
+                                        <p className="text-sm flex-grow-1"> {/* Added 'flex-grow-1' class to make the paragraph take remaining space */}
+                                            {String(activity.userContent)}
+                                        </p>
+
+                                        <Delete id={activity._id} toggleFetch={handleFetch} />
+
+                                    </div>
+
+
+
+
                                 </div>
+
+
                             ))
                         }
+
                     </div>
+
+
                 </div>
             </div>
         </div>
