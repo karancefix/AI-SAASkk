@@ -25,7 +25,10 @@ import ReactMarkdown from "react-markdown"
 
 const Code = () => {
     const router = useRouter();
+    const [isDeleting, setIsDeleting] = useState(false);
     const [activities, setActivities] = useState<any>(null)
+    // const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
+
     useEffect(() => {
         axios.get("/api/activity/codes")
             .then((response) => {
@@ -39,7 +42,6 @@ const Code = () => {
 
 
 
-    const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -59,7 +61,7 @@ const Code = () => {
                 message: userMessage,
             })
 
-            setMessages(response.data)
+            // setMessages(response.data)
 
             form.reset();
 
@@ -80,6 +82,9 @@ const Code = () => {
         }
     }
 
+    const toggleISDeleting = () => {
+        setIsDeleting((pev) => !pev);
+    }
 
     const handleFetch = () => {
         axios.get("/api/activity/codes")
@@ -89,7 +94,7 @@ const Code = () => {
             .catch((error) => {
                 console.log(error)
             })
-        console.log("handle fetch")
+        // console.log("handle fetch")
     }
 
 
@@ -145,6 +150,11 @@ const Code = () => {
                             <Loader />
                         </div>
                     )}
+                    {isDeleting && (
+                        <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
+                            <Loader />
+                        </div>
+                    )}
                     {activities?.length === 0 && !isLoading && (
                         <Empty label="Code Generation not started" />
                     )}
@@ -194,7 +204,7 @@ const Code = () => {
                                             {String(activity.userContent)}
                                         </p>
 
-                                        <Delete id={activity._id} toggleFetch={handleFetch} />
+                                        <Delete id={activity._id} toggleFetch={handleFetch} toggleDelete={toggleISDeleting} />
 
                                     </div>
 

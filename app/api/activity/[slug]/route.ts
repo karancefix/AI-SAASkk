@@ -42,8 +42,11 @@ export async function GET(req: Request, context: { params: Params }) {
 
     // Send the user activities as JSON response
     return NextResponse.json(userActivities);
+
   } catch (error) {
+
     console.error('Error in GET request:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
   }
 }
