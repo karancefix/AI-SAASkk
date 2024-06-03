@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.0",
     "@clerk/nextjs": "^5.0.3",
+    "@clerk/themes": "^2.1.8",
     "@hookform/resolvers": "^3.3.4",
     "@huggingface/inference": "^2.6.7",
     "@next/env": "^14.2.3",

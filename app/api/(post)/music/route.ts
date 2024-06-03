@@ -106,7 +106,7 @@ export async function POST(req: Request) {
         return new NextResponse("DONE", { status: 200 });
 
     } catch (error) {
-        console.log("[Image Error]", error);
+        console.log("[Music Error]", error);
         return new NextResponse("Internal Error", { status: 500 });
     }
 }

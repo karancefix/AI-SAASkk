@@ -1,7 +1,7 @@
 "use client";
 import * as z from "zod"
 // import { useRouter } from "next/navigation";
-import { DeleteIcon, Music, Trash } from 'lucide-react';
+import { DeleteIcon, Trash, VideoIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,17 +23,17 @@ import ProgressComponent from "@/components/Progress";
 
 
 
-const MusicPage = () => {
+const VideoPage = () => {
     // const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [activities, setActivities] = useState<any>(null)
     const [imageLoading, setImageLoading] = useState<number>(5);
     const [seconds, setSeconds] = useState<number>(0.00);
-    const [messages, setMessages] = useState<string>("Generating Music");
+    const [messages, setMessages] = useState<string>("Generating video");
 
 
     useEffect(() => {
-        axios.get("/api/activity/music")
+        axios.get("/api/activity/video")
             .then((response) => {
                 setActivities(response.data)
             })
@@ -85,11 +85,11 @@ const MusicPage = () => {
                 role: "user",
                 content: values.prompt,
             }
-            const response = await axios.post("/api/music", {
+            const response = await axios.post("/api/video", {
                 message: userMessage,
             })
 
-            setMessages("Generating Music")
+            setMessages("Generating video")
             clearInterval(secondsCounter)
             setSeconds(0.00)
             // setMessages(response.data)
@@ -102,7 +102,7 @@ const MusicPage = () => {
         }
         finally {
             // router.refresh();
-            axios.get("/api/activity/music")
+            axios.get("/api/activity/video")
                 .then((response) => {
                     setActivities(response.data)
                 })
@@ -121,7 +121,7 @@ const MusicPage = () => {
     }
 
     const handleFetch = () => {
-        axios.get("/api/activity/music")
+        axios.get("/api/activity/video")
             .then((response) => {
                 setActivities(response.data)
             })
@@ -137,11 +137,11 @@ const MusicPage = () => {
         <div >
 
             <Heading
-                title='Music Generation'
-                description='Turn your prompt into music'
-                icon={Music}
-                iconColor='text-emerald-500'
-                bgColor='bg-emerald-500/10'
+                title='Video Generation'
+                description='Turn your thoughts into video'
+                icon={VideoIcon}
+                iconColor='text-orange-500'
+                bgColor='bg-orange-500/10'
             />
             <div className='px-4 lg:px-8'>
                 <div>
@@ -167,7 +167,7 @@ const MusicPage = () => {
                                         <FormControl className="m-0 p-0">
                                             <Input className="border-0  outline-none focus-visible:ring-0  focus-visible:ring-transparent"
                                                 disabled={isLoading}
-                                                placeholder="funky synth solo ~"
+                                                placeholder="Clown fish swimming around a coral reef ~"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -187,9 +187,9 @@ const MusicPage = () => {
                                 <div className="flex justify-between">
                                     <div className="text-black/50 mb-1">
                                         {messages}
-                                        <span className="dot-3 animate-blink font-bold">.</span>
-                                        <span className="dot-2 animate-blink font-bold">.</span>
-                                        <span className="dot-1 animate-blink font-bold">.</span>
+                                        <span className="dot-3 animate-blink font-bold ms-1">.</span>
+                                        <span className="dot-2 animate-blink font-bold ms-1">.</span>
+                                        <span className="dot-1 animate-blink font-bold ms-1">.</span>
                                     </div>
                                     <div className="flex justify-start items-center w-12 font-mono me-3">
                                         <div className="text-black/50 pe-2">{seconds.toFixed(2)}</div>
@@ -216,7 +216,7 @@ const MusicPage = () => {
                     )}
 
                     {activities?.length === 0 && !isLoading && (
-                        <Empty label="Music Generation not started" />
+                        <Empty label="Video Generation not started" />
                     )}
 
                     <div className="flex flex-col-reverse gap-y-4">
@@ -238,10 +238,9 @@ const MusicPage = () => {
                                         {/* <p className="text-sm">
                                             {String(activity.aiContent)}
                                         </p> */}
-                                        <audio controls={true} className="w-full">
+                                        <video controls={true} className="rounded-lg w-full ">
                                             <source src={activity.aiContent} type="audio/x-wav" />
-                                        </audio>
-
+                                        </video>
                                     </div>
 
                                     <div
@@ -275,4 +274,4 @@ const MusicPage = () => {
     )
 }
 
-export default MusicPage;
+export default VideoPage;
