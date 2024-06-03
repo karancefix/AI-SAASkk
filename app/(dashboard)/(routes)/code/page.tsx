@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+// import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 import Heading from '@/components/Heading';
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -53,7 +53,7 @@ const Code = () => {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            const userMessage: ChatCompletionMessageParam = {
+            const userMessage: any = {
                 role: "user",
                 content: values.prompt,
             }
@@ -181,12 +181,12 @@ const Code = () => {
                                                     </div>
                                                 ),
                                                 code: ({ node, ...props }) => (
-                                                    <code className="bg-black/10 rounded-lg p-1" {...props} />
+                                                    <code className="bg-black/10 rounded-lg p-1 " {...props} />
                                                 )
                                             }}
                                             className="text-sm overflow-hidden leading-7"
                                         >
-                                            {activity.aiContent || ""}
+                                            {" ``` " + activity.aiContent + " ``` " || ""}
                                         </ReactMarkdown>
                                         {/* <p className="text-sm">
                                             {String(activity.aiContent)}

@@ -1,12 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { HfInference } from "@huggingface/inference";
 import connectDB from "@/lib/dbConnection/db";
 import DynamicSchema from "@/app/model/model";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebaseCofig/config";
+import { HfInference } from "@huggingface/inference";
+// import Replicate from "replicate";
 import Pusher from "pusher";
+import { storage } from "@/lib/firebaseCofig/config";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
+// const replicate = new Replicate();
 const TOKEN = process.env.HF_ACCESS_TOKEN;
 const hf = new HfInference(TOKEN);
 
@@ -17,6 +19,7 @@ const pusher = new Pusher({
     cluster: process.env.PUSHER_CLUSTER || '',
     useTLS: true,
 });
+
 
 export async function POST(req: Request) {
     try {
@@ -32,23 +35,34 @@ export async function POST(req: Request) {
             return new NextResponse("Messages are Required", { status: 400 });
         }
 
+        // const input = {
+        //     prompt_b: message.content,
+        // };
+
         await pusher.trigger("load", "load-event", {
-            loading: 10,
+            loading: 20,
+            message: "Generating Music"
         })
 
-        const res = await hf.textToImage({
-            model: 'stabilityai/stable-diffusion-xl-base-1.0',
+        const res = await hf.textToSpeech({
+            model: 'facebook/musicgen-small',
             inputs: message.content,
-            parameters: {
-                negative_prompt: 'blurry',
-            }
-        });
+            // duration: 5,
+        })
+        // console.log(res)
+        // return new NextResponse(res, { status: 200 })
+        // console.log("first")
+
+        // const res: any = await replicate.run("riffusion/riffusion:8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05", { input });
+
+        // console.log("second")
 
         await pusher.trigger("load", "load-event", {
-            loading: 33,
+            loading: 50,
+            message: "Hold on tight!",
         })
 
-        const storageRef = ref(storage, `images/${Date.now()}-${userId}`);
+        const storageRef = ref(storage, `audio/${Date.now()}-${userId}`);
         const uploadTask = uploadBytesResumable(storageRef, res);
 
         const downloadURL = await new Promise((resolve, reject) => {
@@ -67,11 +81,18 @@ export async function POST(req: Request) {
         });
 
         await pusher.trigger("load", "load-event", {
-            loading: 100,
+            loading: 80,
+            message: "Almost there"
         })
 
         await connectDB();
-        const User = DynamicSchema('image');
+
+        await pusher.trigger("load", "load-event", {
+            loading: 100,
+            message: "Done"
+        })
+
+        const User = DynamicSchema('music');
 
         const newUserActivity = new User({
             aiContent: downloadURL,
@@ -79,10 +100,6 @@ export async function POST(req: Request) {
             date: new Date(),
             uid: userId,
         });
-
-        // await pusher.trigger("load", "load-event", {
-        //     loading: 100,
-        // })
 
         await newUserActivity.save();
 

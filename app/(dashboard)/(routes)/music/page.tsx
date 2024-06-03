@@ -1,13 +1,11 @@
 "use client";
 import * as z from "zod"
 // import { useRouter } from "next/navigation";
-import { Download, ImageIcon } from 'lucide-react';
+import { DeleteIcon, Music, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-// import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import Image from "next/image";
 import Pusher from "pusher-js";
 
 import Heading from '@/components/Heading';
@@ -15,30 +13,27 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Empty } from "@/components/Empty";
+
 import { formSchema } from "./constants";
 import { Loader } from "@/components/Loader";
 import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
 import Delete from "@/components/Delete";
 import ProgressComponent from "@/components/Progress";
-import { Card, CardFooter } from "@/components/ui/card";
 
 
-// type imageLoading = {
-//     loading: number,
-// }
 
-const ImagePage = () => {
+const MusicPage = () => {
     // const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
-    const [imageLoading, setImageLoading] = useState<number>(5);
     const [activities, setActivities] = useState<any>(null)
-    // const [toggleImageLoader, setToggleImageLoader] = useState(false);
-    // const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
+    const [imageLoading, setImageLoading] = useState<number>(5);
+    const [seconds, setSeconds] = useState<number>(0.00);
+    const [messages, setMessages] = useState<string>("Generating Music");
 
 
     useEffect(() => {
-        axios.get("/api/activity/image")
+        axios.get("/api/activity/music")
             .then((response) => {
                 setActivities(response.data)
             })
@@ -58,6 +53,7 @@ const ImagePage = () => {
         channel.bind("load-event", function (data: any) {
             if (data.loading !== undefined) {
                 setImageLoading(data.loading);
+                setMessages(data.message)
             }
         });
 
@@ -67,7 +63,7 @@ const ImagePage = () => {
             pusher.unsubscribe("load");
         };
 
-    }, []);
+    }, [])
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -79,53 +75,44 @@ const ImagePage = () => {
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-
         try {
-            // const pusher = new Pusher(process.env.PUSHER_KEY || "", {
-            //     cluster: "ap2",
-            // });
 
-            // const channel = pusher.subscribe("load");
-
-            // channel.bind("load-event", function (data: any) {
-            //     if (data.loading !== undefined) {
-            //         setImageLoading(data.loading);
-            //     }
-            // });
+            const secondsCounter = setInterval(() => {
+                setSeconds((prev) => prev + 0.01)
+            }, 10)
 
             const userMessage: any = {
                 role: "user",
                 content: values.prompt,
             }
-            const response = await axios.post("/api/image", {
+            const response = await axios.post("/api/music", {
                 message: userMessage,
             })
 
-
+            setMessages("Generating Music")
+            clearInterval(secondsCounter)
+            setSeconds(0.00)
             // setMessages(response.data)
 
             form.reset();
-
-            // console.log("Done with the posting");
 
         } catch (error: any) {
             //TODO: open pro modal
             console.log(error)
         }
         finally {
-            // console.log("starting to fetch again")
-
-            axios.get("/api/activity/image")
+            // router.refresh();
+            axios.get("/api/activity/music")
                 .then((response) => {
                     setActivities(response.data)
                 })
                 .catch((error) => {
                     console.log(error)
                 })
-            setImageLoading(0);
-
-            // handleFetch();
+            // console.log(messages)
             // console.log("finally")
+            setImageLoading(5);
+
         }
     }
 
@@ -134,7 +121,7 @@ const ImagePage = () => {
     }
 
     const handleFetch = () => {
-        axios.get("/api/activity/image")
+        axios.get("/api/activity/music")
             .then((response) => {
                 setActivities(response.data)
             })
@@ -147,13 +134,14 @@ const ImagePage = () => {
 
 
     return (
-        <div>
+        <div >
+
             <Heading
-                title='Image Generation'
-                description='Turn your imagination to reality~!'
-                icon={ImageIcon}
-                iconColor='text-pink-500'
-                bgColor='bg-pink-500/10'
+                title='Music Generation'
+                description='Turn your prompt into music'
+                icon={Music}
+                iconColor='text-emerald-500'
+                bgColor='bg-emerald-500/10'
             />
             <div className='px-4 lg:px-8'>
                 <div>
@@ -179,7 +167,7 @@ const ImagePage = () => {
                                         <FormControl className="m-0 p-0">
                                             <Input className="border-0  outline-none focus-visible:ring-0  focus-visible:ring-transparent"
                                                 disabled={isLoading}
-                                                placeholder="Let's create something amazing!"
+                                                placeholder="funky synth solo ~"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -195,8 +183,23 @@ const ImagePage = () => {
                     {
                         isLoading &&
                         (
-                            <div className="flex justify-center">
+                            <div className="flex justify-center flex-col">
+                                <div className="flex justify-between">
+                                    <div className="text-black/50 mb-1">
+                                        {messages}
+                                        <span className="dot-3 animate-blink font-bold">.</span>
+                                        <span className="dot-2 animate-blink font-bold">.</span>
+                                        <span className="dot-1 animate-blink font-bold">.</span>
+                                    </div>
+                                    <div className="flex justify-start items-center w-12 font-mono me-3">
+                                        <div className="text-black/50 pe-2">{seconds.toFixed(2)}</div>
+                                        <div className="text-black/50">s</div>
+                                    </div>
+                                </div>
+
                                 <ProgressComponent percentProp={imageLoading} />
+
+
                             </div>
 
                         )
@@ -211,12 +214,14 @@ const ImagePage = () => {
                             <Loader />
                         </div>
                     )}
+
                     {activities?.length === 0 && !isLoading && (
-                        <Empty label="Image Generation not started" />
+                        <Empty label="Music Generation not started" />
                     )}
 
-
                     <div className="flex flex-col-reverse gap-y-4">
+
+
 
                         {activities &&
                             activities.map((activity: any) => (
@@ -233,34 +238,9 @@ const ImagePage = () => {
                                         {/* <p className="text-sm">
                                             {String(activity.aiContent)}
                                         </p> */}
-                                        <Card
-                                            key={String(activity.aiContent)}
-                                            className="rounded-lg overflow-hidden"
-                                        >
-                                            <div className="relative aspect-square">
-                                                <Image
-                                                    className='hover:opacity-95 duration-300 ease-in-out'
-                                                    width={500}
-                                                    height={500}
-
-                                                    alt={activity.userContent}
-                                                    src={activity.aiContent}
-                                                />
-                                            </div>
-                                            <CardFooter className="p-2">
-                                                <Button
-                                                    onClick={() => window.open(activity.aiContent, "_blank")}
-                                                    variant={"secondary"}
-                                                    className="w-full"
-
-                                                >
-                                                    <Download className="h-4 w-4 mr-2 " />
-                                                    Download
-                                                </Button>
-
-                                            </CardFooter>
-                                        </Card>
-
+                                        <audio controls={true} >
+                                            <source src={activity.aiContent} type="audio/x-wav" />
+                                        </audio>
 
                                     </div>
 
@@ -295,4 +275,4 @@ const ImagePage = () => {
     )
 }
 
-export default ImagePage;
+export default MusicPage;

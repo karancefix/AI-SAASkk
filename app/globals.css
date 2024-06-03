@@ -79,3 +79,13 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+.dot-1 {
+  animation-delay: 0s;
+}
+.dot-2 {
+  animation-delay: 0.5s;
+}
+.dot-3 {
+  animation-delay: 1s;
+}
