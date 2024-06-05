@@ -15,6 +15,7 @@ export async function DELETE(req: NextRequest, context: { params: Params }) {
         if (!id) {
             return NextResponse.json({ error: 'Id parameter is missing' }, { status: 400 });
         }
+        connectDB();
         const UserModel = DynamicSchema(slug);
         const deleted = await UserModel.findByIdAndDelete(id as string);
         return NextResponse.json({
