@@ -1,7 +1,7 @@
 import DynamicSchema from '@/app/model/model';
 import connectDB from "@/lib/dbConnection/db";
 import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 type Params = {
@@ -9,7 +9,7 @@ type Params = {
     slug: string
 }
 
-export async function DELETE(req: NextApiRequest, context: { params: Params }) {
+export async function DELETE(req: NextRequest, context: { params: Params }) {
     try {
         const { id, slug } = context.params;
         if (!id) {
