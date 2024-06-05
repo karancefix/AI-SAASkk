@@ -8,6 +8,8 @@ interface UserActivity {
     userContent: string,
     date: Date,
     uid: string,
+    count: number,
+    isPro: boolean,
 }
 
 interface UserDocument extends UserActivity, Document { }
@@ -24,6 +26,8 @@ const DynamicSchema = (collectionName: string) => {
         userContent: { type: String, required: true },
         date: { type: Date, required: true },
         uid: { type: String, required: true },
+        count: { type: Number, default: 0 },
+        isPro: { type: Boolean, default: false }
     });
 
     // Create the User model using the schema

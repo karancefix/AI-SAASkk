@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
 import connectDB from "@/lib/dbConnection/db";
 import DynamicSchema from "@/app/model/model";
-
+import { increaseApiLimit, checkApiLimit } from "@/lib/api-limit/api-limit";
+import { checkSubscription } from "@/lib/stripe/subscription";
 
 const TOKEN = process.env.HF_ACCESS_TOKEN;
 const hf = new HfInference(TOKEN);
@@ -26,6 +27,12 @@ export async function POST(req: Request) {
       return new NextResponse("Messages are Required", { status: 400 });
     }
 
+    const freeTrial = await checkApiLimit("conversation", userId)
+    const isPro = await checkSubscription();
+    if (!freeTrial && !isPro) {
+      return new NextResponse("Free trial limit exceeded", { status: 403 })
+    }
+
     const response = await hf.textGeneration({
       model: "tiiuae/falcon-7b-instruct",
       inputs: message.content + " ?",
@@ -42,6 +49,9 @@ export async function POST(req: Request) {
 
     await newUserActivity.save();
 
+    if (!isPro) {
+      await increaseApiLimit("conversation", userId)
+    }
     return NextResponse.json({
       role: "Genius",
       content: response.generated_text,

@@ -4,7 +4,9 @@ import connectDB from "@/lib/dbConnection/db";
 import DynamicSchema from "@/app/model/model";
 // import { HfInference } from "@huggingface/inference";
 import Replicate from "replicate";
+import { increaseApiLimit, checkApiLimit } from "@/lib/api-limit/api-limit";
 import Pusher from "pusher";
+import { checkSubscription } from "@/lib/stripe/subscription";
 // import { stat } from "fs";
 // import { storage } from "@/lib/firebaseCofig/config";
 // import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -36,6 +38,11 @@ export async function POST(req: Request) {
             return new NextResponse("Messages are Required", { status: 400 });
         }
 
+        const freeTrial = await checkApiLimit("conversation", userId)
+        const isPro = await checkSubscription();
+        if (!freeTrial && !isPro) {
+            return new NextResponse("Free trial limit exceeded", { status: 403 })
+        }
         // const input = {
         //     prompt_b: message.content,
         // };
@@ -111,6 +118,11 @@ export async function POST(req: Request) {
         });
 
         await newUserActivity.save();
+
+        if (!isPro) {
+            await increaseApiLimit("conversation", userId)
+        }
+
 
         return new NextResponse("DONE", { status: 200 });
 

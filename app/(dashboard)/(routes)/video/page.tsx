@@ -1,6 +1,6 @@
 "use client";
 import * as z from "zod"
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { DeleteIcon, Trash, VideoIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
@@ -20,11 +20,14 @@ import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
 import Delete from "@/components/Delete";
 import ProgressComponent from "@/components/Progress";
+import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 
 
 const VideoPage = () => {
-    // const router = useRouter();
+    const proModal = useProModal();
+    const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [activities, setActivities] = useState<any>(null)
     const [imageLoading, setImageLoading] = useState<number>(5);
@@ -97,11 +100,13 @@ const VideoPage = () => {
             form.reset();
 
         } catch (error: any) {
-            //TODO: open pro modal
-            console.log(error)
+            if (error?.response?.status === 403) {
+                proModal.onOpen();
+            } else {
+                toast.error("Something went wrong!")
+            }
         }
         finally {
-            // router.refresh();
             axios.get("/api/activity/video")
                 .then((response) => {
                     setActivities(response.data)
@@ -111,7 +116,9 @@ const VideoPage = () => {
                 })
             // console.log(messages)
             // console.log("finally")
+            router.refresh();
             setImageLoading(5);
+
 
         }
     }

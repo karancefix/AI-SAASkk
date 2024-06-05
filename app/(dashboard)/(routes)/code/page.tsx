@@ -19,11 +19,13 @@ import { Loader } from "@/components/Loader";
 import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
 import Delete from "@/components/Delete";
-
+import { useProModal } from "@/hooks/use-pro-modal";
 import ReactMarkdown from "react-markdown"
+import toast from "react-hot-toast";
 
 
 const Code = () => {
+    const proModal = useProModal()
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [activities, setActivities] = useState<any>(null)
@@ -66,11 +68,14 @@ const Code = () => {
             form.reset();
 
         } catch (error: any) {
-            //TODO: open pro modal
-            console.log(error)
+            if (error?.response?.status === 403) {
+                proModal.onOpen();
+            }
+            else {
+                toast.error("Something went wrong!")
+            }
         }
         finally {
-            // router.refresh();
             axios.get("/api/activity/codes")
                 .then((response) => {
                     setActivities(response.data)
@@ -78,6 +83,9 @@ const Code = () => {
                 .catch((error) => {
                     console.log(error)
                 })
+
+            router.refresh();
+
             // console.log("finally")
         }
     }

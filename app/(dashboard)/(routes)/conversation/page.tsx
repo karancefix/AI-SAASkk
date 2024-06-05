@@ -19,25 +19,30 @@ import { Loader } from "@/components/Loader";
 import { Useravatar } from "@/components/Useravatar";
 import { BotAvatar } from "@/components/BotAvatar";
 import Delete from "@/components/Delete";
+import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
+// import ProModal from "@/components/ProModal";
 
 
 
 const Conversation = () => {
+    const proModal = useProModal()
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [activities, setActivities] = useState<any>(null)
-    // const [messages, setMessages] = useState<ChatCompletionMessageParam | null>(null);
+    // const [limit, setLimit] = useState<number>()
+    // const [messages, setMessages] = useState<string>("");
 
 
     useEffect(() => {
         axios.get("/api/activity/conversation")
             .then((response) => {
                 setActivities(response.data)
+                // setLimit(response.data[0].count)
             })
             .catch((error) => {
                 console.log(error)
             })
-
     }, [])
 
 
@@ -67,18 +72,30 @@ const Conversation = () => {
             form.reset();
 
         } catch (error: any) {
-            //TODO: open pro modal
-            console.log(error)
+            if (error?.response?.status === 403) {
+                proModal.onOpen();
+            }
+            else {
+                toast.error("Something went wrong!")
+            }
         }
         finally {
             // router.refresh();
             axios.get("/api/activity/conversation")
                 .then((response) => {
                     setActivities(response.data)
+                    // setLimit(response.data[0].count)
+
                 })
                 .catch((error) => {
                     console.log(error)
                 })
+
+            router.refresh();
+
+
+            // setLimit(response.data[0].count)
+
             // console.log("finally")
         }
     }
@@ -91,10 +108,14 @@ const Conversation = () => {
         axios.get("/api/activity/conversation")
             .then((response) => {
                 setActivities(response.data)
+                // setLimit(response.data[0].count)
             })
             .catch((error) => {
                 console.log(error)
             })
+
+        // setLimit(response.data[0].count)
+
         // console.log("handle fetch")
     }
 
@@ -102,7 +123,7 @@ const Conversation = () => {
 
     return (
         <div >
-
+            {/* <div className="w-10 h-10 rounded-full text-xl absolute font-mono ">{limit}</div> */}
             <Heading
                 title='Conversation'
                 description='Our AI based conversation model.'

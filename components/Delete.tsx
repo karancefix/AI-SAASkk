@@ -1,10 +1,10 @@
 "use client";
 import axios from 'axios'
 import { Trash } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+// import { useRouter } from 'next/navigation'
+import React from 'react'
 import { usePathname } from 'next/navigation'
-import { Loader } from './Loader';
+// import { Loader } from './Loader';
 
 type DeleteProps = {
     id: string,

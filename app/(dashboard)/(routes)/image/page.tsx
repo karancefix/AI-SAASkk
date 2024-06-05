@@ -22,6 +22,9 @@ import { BotAvatar } from "@/components/BotAvatar";
 import Delete from "@/components/Delete";
 import ProgressComponent from "@/components/Progress";
 import { Card, CardFooter } from "@/components/ui/card";
+import { useProModal } from "@/hooks/use-pro-modal";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 // type imageLoading = {
@@ -29,7 +32,8 @@ import { Card, CardFooter } from "@/components/ui/card";
 // }
 
 const ImagePage = () => {
-    // const router = useRouter();
+    const proModal = useProModal()
+    const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [imageLoading, setImageLoading] = useState<number>(5);
     const [activities, setActivities] = useState<any>(null)
@@ -109,8 +113,12 @@ const ImagePage = () => {
             // console.log("Done with the posting");
 
         } catch (error: any) {
-            //TODO: open pro modal
-            console.log(error)
+            if (error?.response?.status === 403) {
+                proModal.onOpen();
+            }
+            else {
+                toast.error("Something went wrong!")
+            }
         }
         finally {
             // console.log("starting to fetch again")
@@ -122,6 +130,7 @@ const ImagePage = () => {
                 .catch((error) => {
                     console.log(error)
                 })
+            router.refresh()
             setImageLoading(0);
 
             // handleFetch();
@@ -141,6 +150,9 @@ const ImagePage = () => {
             .catch((error) => {
                 console.log(error)
             })
+
+        // router.refresh();
+
         // console.log("handle fetch")
     }
 
@@ -195,9 +207,9 @@ const ImagePage = () => {
                     {
                         isLoading &&
                         (
-                            <div className="flex justify-center">
-                                <ProgressComponent percentProp={imageLoading} />
-                            </div>
+                            // <div className="flex justify-center">
+                            <ProgressComponent percentProp={imageLoading} />
+                            // </div>
 
                         )
                     }

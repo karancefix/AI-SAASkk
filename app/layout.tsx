@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs'
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import ModalProvider from "@/components/ModalProvider";
+import ToasterProvider from "@/components/Toaster-provider";
+import CrispProvider from "@/components/CrispProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +22,14 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <CrispProvider />
         <body className={inter.className}>
           <link rel="icon" href="/logo.png" sizes="any" />
-          <AntdRegistry>{children}</AntdRegistry>
+          <AntdRegistry>
+            <ModalProvider />
+            <ToasterProvider />
+            {children}
+          </AntdRegistry>
         </body>
       </html>
     </ClerkProvider>

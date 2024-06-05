@@ -79,6 +79,8 @@ const DashboardPage = () => {
           ))
         }
       </div>
+      <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400 mt-2">© 2023 <a href="https://flowbite.com/" className="hover:underline">GENIUS™</a>. All Rights Reserved.</span>
+
     </div>
   );
 }
