@@ -14,7 +14,7 @@ const font = Montserrat({
 })
 
 const LandingNavbar = () => {
-    const { isSignedIn } = useAuth();
+    const { userId, isSignedIn } = useAuth();
     return (
         <nav className='p-4 bg-transparent flex items-center justify-between'>
             <Link href="/" className='flex items-center'>
@@ -35,6 +35,15 @@ const LandingNavbar = () => {
                         Get started
                     </Button>
                 </Link>
+                {
+                    userId === "user_2fmBA7gmVHaHtMZusK0BEdRE00r" &&
+
+                    <Link href={"/admin"}>
+                        <Button variant={"outline"} className='rounded-full'>
+                            Admin Dashboard
+                        </Button>
+                    </Link>
+                }
             </div>
         </nav >
     )
