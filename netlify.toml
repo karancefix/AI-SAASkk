@@ -1,0 +1,3 @@
+[functions]
+  [[functions."api/image"]]
+    timeout = 120
